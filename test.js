@@ -17,7 +17,7 @@ const startPage = 1;
         }
       };
       image.onerror = function () {
-        // Last page reached, initialize Swiper
+        // 마지막 페이지 도달, Swiper 초기화
         initializeSwiper();
       };
     }
@@ -40,6 +40,6 @@ const startPage = 1;
     }
     
     document.addEventListener("DOMContentLoaded", function () {
-      // Start loading the first page
+      // 첫 페이지 로딩 시작
       loadPDFImage(startPage);
     });
