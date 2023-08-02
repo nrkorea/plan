@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html style="overflow: hidden;" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"content="user-scalable=no,width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+  <title>PDF Image Slider</title>
+  <!-- Add Swiper CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+  <!-- 복사방지코드-수정권한 봉삼 -->
+  <script src="https://bongbongsam.github.io/mycode/js/prevent_copy.js"></script> 
+  <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
+  <style>
+    html,body {POSITION: initial;height: 100%;}
+    :root {--swiper-navigation-size: calc(20px + 2vw);}
+    body {background: #eee; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 14px; margin: 0; padding: 0; }
+    .swiper-button-prev {left: calc(var(--swiper-navigation-sides-offset, 5vw) - var(--swiper-navigation-size) / 2); padding: 25% 35% 25% 0; bottom: 0px; margin-top: 0px; top: 50%; transform: translateY(-45%);}
+    .swiper-button-next {right: calc(var(--swiper-navigation-sides-offset, 5vw) - var(--swiper-navigation-size) / 2); padding: 25% 0 25% 35%; bottom: 0px;  margin-top: 0px; top: 50%; transform: translateY(-45%); }
+    .swiper-container { height: 100vh; width: 100vw;}
+    .swiper-slide { position: relative; width: 100%;  /* display: flex; justify-content: center; align-items: center; */ }
+    .swiper-slide::before { content: ""; display: block; padding-top: 56.25%; /* 16:9 aspect ratio (change this value as needed) */}
+    .swiper-slide > * {position: absolute; top: 0; left: 0; height: 100%; width: 100%;}
+    .swiper-pagination {
+      cursor: pointer;
+      -webkit-text-stroke-color: white;
+      -webkit-text-stroke-width: thin;
+      position: absolute;
+      padding: 0 0 5px;
+      color: #00000069;
+      font-size:calc(8px + 1vw);
+      font-weight: bold;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false" onkeydownn="return false">
+  <div class="swiper-container">
+    <div class="swiper-wrapper"> </div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+  </div>
+
+  <script src="https://unpkg.com/swiper@10.0.0-beta.1/swiper-bundle.min.js"></script>
+  <script src="https://unpkg.com/swiper@10.0.0-beta.1/swiper-bundle.js.map"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
+
+  <script>
+    const startPage = 1;
+    const imageWrapper = document.querySelector(".swiper-wrapper");
+    
+    function loadPDFImage(pageNumber) {
+      const imageUrl = `https://word-view.officeapps.live.com/wv/ResReader.ashx?n=p${pageNumber}.img&v=00000000-0000-0000-0000-000000000802&usid=2b0c68dc-e465-4e37-be95-211425bfc76b&build=16.0.16721.41004&WOPIsrc=https%3A%2F%2Fwopi%2Eonedrive%2Ecom%2Fwopi%2Ffiles%2FB57DF9D3D88A4E61%211664&access_token=4wVnFKIuwqyprU-kq8Y1Inf6HaVRefBpQwHJB-8VplJY54ppRMjCtX5nJy4GSrtcQ4SI2pkSAsYkztrrrn0cKTfq24yUo-7vpDyCNaUeAdgKCLy9sIzvbbw0mc7a29coYPBn112gw9TstaR6rCU0IqCg&access_token_ttl=1692066047128&z=aQjU3REY5RDNEODhBNEU2MSExNjY0LjE1&waccluster=PJP1&PdfMode=1`;
+      
+      const image = new Image();
+      image.src = imageUrl;
+      image.alt = `Page ${pageNumber}`;
+      image.onload = function () {
+        const slideDiv = document.createElement("div");
+        slideDiv.classList.add("swiper-slide");
+        slideDiv.appendChild(image);
+        if (imageWrapper) {
+          imageWrapper.appendChild(slideDiv);//다음 페이지 로드
+          loadPDFImage(pageNumber + 1);
+        }
+      };
+      image.onerror = function () {
+        // Last page reached, initialize Swiper
+        initializeSwiper();
+      };
+    }
+    function initializeSwiper() {
+      var mySwiper = new Swiper(".swiper-container", {
+        slidesPerView: 1,
+        centeredSlides: true,    //센터모드
+        loop : false,   // 슬라이드 반복 여부
+        loopAdditionalSlides : 1,
+        freeMode : false, // 슬라이드 넘길 때 위치 고정 여부
+        pagination: {
+          el: ".swiper-pagination",
+          type: 'fraction',
+        },
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+      });
+    }
+    
+    document.addEventListener("DOMContentLoaded", function () {
+      // Start loading the first page
+      loadPDFImage(startPage);
+    });
+  </script>
+  <script>
+    function postMessageToParent(message) {
+      window.parent.postMessage(message, '*');
+    }
+    // iframe 내부에서 PrintScreen 키 누름을 감지하도록 이벤트 리스너를 연결
+    document.addEventListener('keyup', function (event) {
+      if (event.key === 'PrintScreen' || event.code === 'PrintScreen') {
+        // Send a message to the parent window to trigger the warning
+        postMessageToParent('PrintScreenPressedInsideIframe');
+      }
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.ctrlKey && (event.key == 'p'  || event.key == 'P' || event.keycode == '80' )) {
+        // Send a message to the parent window to trigger the warning
+        postMessageToParent('ControlPPressedInsideIframe');
+      }
+    });
+    
+  </script>
+</body>
+</html>
