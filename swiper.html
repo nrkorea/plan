@@ -53,13 +53,13 @@
     // iframe 내부에서 PrintScreen 키 누름을 감지하도록 이벤트 리스너를 연결
     document.addEventListener('keyup', function (event) {
       if (event.key === 'PrintScreen' || event.code === 'PrintScreen') {
-        // Send a message to the parent window to trigger the warning
+        // 부모 창에 메시지를 보내 경고를 트리거
         postMessageToParent('PrintScreenPressedInsideIframe');
       }
     });
     document.addEventListener('keydown', function (event) {
       if (event.ctrlKey && (event.key == 'p'  || event.key == 'P' || event.keycode == '80' )) {
-        // Send a message to the parent window to trigger the warning
+        // 부모 창에 메시지를 보내 경고를 트리거
         postMessageToParent('ControlPPressedInsideIframe');
       }
     });
